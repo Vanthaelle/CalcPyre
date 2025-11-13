@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CalcPyre</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #000000;
+  --bg-panel: #0a0a0a;
+  --green: #00ff7f;
+  --blue: #00bfff;
+  --white: #ffffff;
+  --light: rgba(255,255,255,0.9);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Orbitron', sans-serif;
+  background: radial-gradient(circle at 30% 30%, #001a00, #000000 70%), #000000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+}
+
+.calc-wrap {
+  width: 100%;
+  max-width: 450px;
+  background: var(--bg-panel);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 0 25px var(--green), 0 0 40px var(--blue);
+}
+
+header.title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+header.title h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  color: var(--green);
+  text-shadow: 0 0 10px var(--green), 0 0 20px var(--blue);
+}
+
+.display {
+  background: rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 20px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 25px;
+  border: 1px solid rgba(0,255,127,0.2);
+}
+
+.expr {
+  color: var(--blue);
+  font-size: 1rem;
+  opacity: 0.8;
+  overflow-x: auto;
+}
+
+.result {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--green);
+  margin-top: 5px;
+}
+
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+button.key {
+  background: rgba(0,255,127,0.1);
+  color: var(--white);
+  border: none;
+  border-radius: 14px;
+  padding: 18px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,191,255,0.3);
+}
+
+button.key:hover {
+  background: rgba(0,191,255,0.3);
+  transform: translateY(-2px);
+}
+
+button.key:active {
+  transform: scale(0.97);
+}
+
+button.op {
+  background: rgba(0,255,127,0.2);
+  color: var(--white);
+}
+
+button.eq {
+  background: var(--blue);
+  color: var(--white);
+  font-weight: 700;
+  grid-column: span 2;
+  box-shadow: 0 4px 12px rgba(0,191,255,0.5);
+}
+
+.credit {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--blue);
+  opacity: 0.7;
+}
+</style>
+</head>
+<body>
+
+<div class="calc-wrap" role="application" aria-label="CalcPyre calculator">
+  <header class="title">
+    <svg width="35" height="35" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M2 12c0-5 4-9 9-9" stroke="#00ff7f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 12c0 5-4 9-9 9" stroke="#00bfff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="2.4" fill="#ffffff"/>
+    </svg>
+    <h1>CalcPyre</h1>
+  </header>
+
+  <div class="display" role="region" aria-live="polite">
+    <div class="expr" id="expr">0</div>
+    <div class="result" id="result">0</div>
+  </div>
+
+  <div class="keys" id="keys">
+    <button class="key op" data-key="clear">C</button>
+    <button class="key op" data-key="back">⌫</button>
+    <button class="key op" data-key="(">(</button>
+    <button class="key op" data-key=")">)</button>
+
+    <button class="key" data-key="7">7</button>
+    <button class="key" data-key="8">8</button>
+    <button class="key" data-key="9">9</button>
+    <button class="key op" data-key="/">÷</button>
+
+    <button class="key" data-key="4">4</button>
+    <button class="key" data-key="5">5</button>
+    <button class="key" data-key="6">6</button>
+    <button class="key op" data-key="*">×</button>
+
+    <button class="key" data-key="1">1</button>
+    <button class="key" data-key="2">2</button>
+    <button class="key" data-key="3">3</button>
+    <button class="key op" data-key="-">−</button>
+
+    <button class="key" data-key="0">0</button>
+    <button class="key" data-key=".">.</button>
+    <button class="key eq" data-key="=">=</button>
+    <button class="key op" data-key="+">+</button>
+  </div>
+
+  <div class="credit">by Vantha</div>
+</div>
+
+<script>
+// Same calculator logic as before
+const exprEl = document.getElementById('expr');
+const resultEl = document.getElementById('result');
+const keys = document.getElementById('keys');
+let expression='';
+
+function render(){
+  exprEl.textContent=expression||'0';
+  const val=evaluateSafe(expression);
+  resultEl.textContent=val!==null?String(val):'0';
+}
+function sanitizeForEval(s){return s.replace(/[^0-9+\-*/().\s]/g,'');}
+function balancedParens(s){
+  let d=0; for(const ch of s){if(ch==='(')d++; if(ch===')'){d--; if(d<0)return false;} }
+  return d===0;
+}
+function evaluateSafe(s){
+  if(!s||s.trim()==='')return null;
+  const clean=sanitizeForEval(s);
+  if(!balancedParens(clean))return null;
+  if(/[+\-*/.]$/.test(clean.trim()))return null;
+  try{
+    const val=Function('"use strict";return('+clean+')')();
+    return(typeof val==='number'&&isFinite(val))?Math.round(val*1e12)/1e12:null;
+  }catch{return null;}
+}
+keys.addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-key]');
+  if(!btn)return;
+  handleKey(btn.getAttribute('data-key'));
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();handleKey('=');}
+  else if(e.key==='Backspace'){e.preventDefault();handleKey('back');}
+  else if(e.key==='Escape'){handleKey('clear');}
+  else if(/^[0-9+\-*/().]$/.test(e.key)){handleKey(e.key);}
+});
+function handleKey(k){
+  if(k==='clear'){expression='';render();return;}
+  if(k==='back'){expression=expression.slice(0,-1);render();return;}
+  if(k==='='){
+    const val=evaluateSafe(expression);
+    if(val!==null){expression=String(val);render();}
+    else{resultEl.textContent='ERR';setTimeout(render,700);}
+    return;
+  }
+  expression+=k;render();
+}
+render();
+</script>
+
+</body>
+</html>
