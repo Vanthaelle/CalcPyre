@@ -7,7 +7,15 @@
   --light: rgba(255,255,255,0.9);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ============================
+   GLOBAL RESET
+============================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   font-family: 'Orbitron', sans-serif;
@@ -15,10 +23,18 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+
+  /* FIXED: no more layout breaking on phones */
+  min-height: 100vh;
+  height: auto;
+
   padding: 20px;
 }
 
+
+/* ============================
+   CALCULATOR WRAPPER
+============================ */
 .calc-wrap {
   width: 100%;
   max-width: 450px;
@@ -28,6 +44,10 @@ body {
   box-shadow: 0 0 25px var(--green), 0 0 40px var(--blue);
 }
 
+
+/* ============================
+   HEADER
+============================ */
 header.title {
   display: flex;
   align-items: center;
@@ -36,12 +56,15 @@ header.title {
 }
 
 header.title h1 {
-  font-family: 'Orbitron', sans-serif;
   font-size: 2rem;
   color: var(--green);
   text-shadow: 0 0 10px var(--green), 0 0 20px var(--blue);
 }
 
+
+/* ============================
+   DISPLAY
+============================ */
 .display {
   background: rgba(255,255,255,0.05);
   border-radius: 16px;
@@ -59,6 +82,7 @@ header.title h1 {
   font-size: 1rem;
   opacity: 0.8;
   overflow-x: auto;
+  white-space: nowrap;
 }
 
 .result {
@@ -66,8 +90,14 @@ header.title h1 {
   font-weight: 700;
   color: var(--green);
   margin-top: 5px;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
+
+/* ============================
+   KEYS
+============================ */
 .keys {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -108,10 +138,79 @@ button.eq {
   box-shadow: 0 4px 12px rgba(0,191,255,0.5);
 }
 
+
+/* ============================
+   CREDITS
+============================ */
 .credit {
   margin-top: 20px;
   text-align: center;
   font-size: 0.85rem;
   color: var(--blue);
   opacity: 0.7;
+}
+
+
+/* ============================
+   MOBILE (≤500px)
+============================ */
+@media (max-width: 500px) {
+  .calc-wrap {
+    padding: 20px;
+    max-width: 100%;
+  }
+
+  header.title h1 {
+    font-size: 1.4rem;
+  }
+
+  .display {
+    padding: 15px;
+    min-height: 80px;
+  }
+
+  .expr {
+    font-size: 0.85rem;
+  }
+
+  .result {
+    font-size: 1.6rem;
+  }
+
+  .keys {
+    gap: 10px;
+  }
+
+  button.key {
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+
+  button.eq {
+    padding: 14px;
+    grid-column: span 2;
+  }
+}
+
+
+/* ============================
+   EXTRA SMALL PHONES (≤390px)
+============================ */
+@media (max-width: 390px) {
+  .keys {
+    gap: 8px;
+  }
+
+  button.key, button.eq {
+    padding: 12px;
+    font-size: 0.85rem;
+  }
+
+  .result {
+    font-size: 1.4rem;
+  }
+
+  .expr {
+    font-size: 0.75rem;
+  }
 }
